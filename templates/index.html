@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Top Controls -->
+    <div class="container mt-3">
+        <div class="d-flex justify-content-end gap-2">
+            <!-- Language Toggle -->
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary btn-sm lang-btn active" data-lang="en">EN</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm lang-btn" data-lang="ar">عربي</button>
+            </div>
+            <!-- Theme Toggle -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0 text-center" data-en="Titanic Survival Predictor" data-ar="متنبئ النجاة من تيتانيك">Titanic Survival Predictor</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted text-center" data-en="Enter passenger details to predict survival probability" data-ar="أدخل تفاصيل الراكب للتنبؤ باحتمالية النجاة">Enter passenger details to predict survival probability</p>
+
+                        {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                        {% endif %}
+
+                        <form action="/predict" method="POST">
+                            <div class="mb-3">
+                                <label for="pclass" class="form-label" data-en="Passenger Class" data-ar="درجة الراكب">Passenger Class</label>
+                                <select class="form-select" id="pclass" name="pclass" required>
+                                    <option value="1" data-en="1st Class" data-ar="الدرجة الأولى">1st Class</option>
+                                    <option value="2" data-en="2nd Class" data-ar="الدرجة الثانية">2nd Class</option>
+                                    <option value="3" selected data-en="3rd Class" data-ar="الدرجة الثالثة">3rd Class</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="sex" class="form-label" data-en="Sex" data-ar="الجنس">Sex</label>
+                                <select class="form-select" id="sex" name="sex" required>
+                                    <option value="0" data-en="Male" data-ar="ذكر">Male</option>
+                                    <option value="1" data-en="Female" data-ar="أنثى">Female</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="marital_status" class="form-label" data-en="Marital Status" data-ar="الحالة الاجتماعية">Marital Status</label>
+                                <select class="form-select" id="marital_status" name="marital_status" required>
+                                    <option value="0" selected data-en="Single / Bachelor" data-ar="أعزب">Single / Bachelor</option>
+                                    <option value="1" data-en="Married" data-ar="متزوج">Married</option>
+                                    <option value="2" data-en="Widowed" data-ar="أرمل">Widowed</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="age" class="form-label" data-en="Age" data-ar="العمر">Age</label>
+                                <input type="number" class="form-control" id="age" name="age"
+                                       min="0" max="120" step="0.1" value="30" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="height" class="form-label" data-en="Height (cm)" data-ar="الطول (سم)">Height (cm)</label>
+                                <input type="number" class="form-control" id="height" name="height"
+                                       min="50" max="250" step="0.1" value="170" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fare" class="form-label" data-en="Fare (in pounds)" data-ar="الأجرة (بالجنيه)">Fare (in pounds)</label>
+                                <input type="number" class="form-control" id="fare" name="fare"
+                                       min="0" step="0.01" value="32" required>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" data-en="Predict Survival" data-ar="تنبؤ بالنجاة">Predict Survival</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Language switching
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+
+            // Update HTML direction
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            // Update all translatable elements
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+        });
+
+        // Theme switching
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+            document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.querySelector('.theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        // Initialize on page load
+        setLanguage(currentLang);
+        setTheme(currentTheme);
+    </script>
+</body>
+</html>

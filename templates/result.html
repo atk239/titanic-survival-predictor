@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - Titanic Survival Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Top Controls -->
+    <div class="container mt-3">
+        <div class="d-flex justify-content-end gap-2">
+            <!-- Language Toggle -->
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary btn-sm lang-btn active" data-lang="en">EN</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm lang-btn" data-lang="ar">عربي</button>
+            </div>
+            <!-- Theme Toggle -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header {% if survived %}bg-success{% else %}bg-danger{% endif %} text-white">
+                        <h3 class="mb-0 text-center" data-en="Prediction Result" data-ar="نتيجة التنبؤ">Prediction Result</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            {% if survived %}
+                            <h2 class="text-success" data-en="Survived" data-ar="نجا">Survived</h2>
+                            <p class="lead" data-en="This passenger would likely have survived!" data-ar="من المرجح أن هذا الراكب قد نجا!">This passenger would likely have survived!</p>
+                            {% else %}
+                            <h2 class="text-danger" data-en="Did Not Survive" data-ar="لم ينجُ">Did Not Survive</h2>
+                            <p class="lead" data-en="This passenger would likely not have survived." data-ar="من المرجح أن هذا الراكب لم ينجُ.">This passenger would likely not have survived.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 data-en="Survival Probability" data-ar="احتمالية النجاة">Survival Probability</h4>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar {% if probability >= 50 %}bg-success{% else %}bg-danger{% endif %}"
+                                     role="progressbar"
+                                     style="width: {{ probability }}%;"
+                                     aria-valuenow="{{ probability }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ "%.1f"|format(probability) }}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 data-en="Passenger Details" data-ar="تفاصيل الراكب">Passenger Details</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th data-en="Class" data-ar="الدرجة">Class</th>
+                                    <td>
+                                        <span data-en="{{ pclass }}{% if pclass == 1 %}st{% elif pclass == 2 %}nd{% else %}rd{% endif %} Class"
+                                              data-ar="الدرجة {% if pclass == 1 %}الأولى{% elif pclass == 2 %}الثانية{% else %}الثالثة{% endif %}">
+                                            {{ pclass }}{% if pclass == 1 %}st{% elif pclass == 2 %}nd{% else %}rd{% endif %} Class
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th data-en="Sex" data-ar="الجنس">Sex</th>
+                                    <td>
+                                        <span data-en="{{ sex }}" data-ar="{% if sex == 'Female' %}أنثى{% else %}ذكر{% endif %}">{{ sex }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th data-en="Marital Status" data-ar="الحالة الاجتماعية">Marital Status</th>
+                                    <td>
+                                        <span data-en="{{ marital_status }}"
+                                              data-ar="{% if marital_status == 'Married' %}متزوج{% elif marital_status == 'Widowed' %}أرمل{% else %}أعزب{% endif %}">
+                                            {{ marital_status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th data-en="Age" data-ar="العمر">Age</th>
+                                    <td>
+                                        <span data-en="{{ age }} years" data-ar="{{ age }} سنة">{{ age }} years</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th data-en="Height" data-ar="الطول">Height</th>
+                                    <td>
+                                        <span data-en="{{ height }} cm" data-ar="{{ height }} سم">{{ height }} cm</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th data-en="Fare" data-ar="الأجرة">Fare</th>
+                                    <td>£{{ "%.2f"|format(fare) }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <a href="/" class="btn btn-primary btn-lg" data-en="Make Another Prediction" data-ar="قم بتنبؤ آخر">Make Another Prediction</a>
+                        <button type="button" class="btn btn-outline-secondary btn-lg ms-2" data-bs-toggle="modal" data-bs-target="#feedbackModal" data-en="Rate This" data-ar="قيّم هذا">
+                            Rate This
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel" data-en="How was your experience?" data-ar="كيف كانت تجربتك؟">How was your experience?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-4" data-en="Please rate our prediction service:" data-ar="يرجى تقييم خدمة التنبؤ لدينا:">Please rate our prediction service:</p>
+                    <div class="feedback-emojis d-flex justify-content-center gap-3">
+                        <button class="emoji-btn btn btn-outline-danger" data-rating="bad" title="Bad">
+                            <span class="emoji">😞</span>
+                            <span class="emoji-label" data-en="Bad" data-ar="سيء">Bad</span>
+                        </button>
+                        <button class="emoji-btn btn btn-outline-warning" data-rating="okay" title="Okay">
+                            <span class="emoji">😐</span>
+                            <span class="emoji-label" data-en="Okay" data-ar="مقبول">Okay</span>
+                        </button>
+                        <button class="emoji-btn btn btn-outline-success" data-rating="good" title="Good">
+                            <span class="emoji">😊</span>
+                            <span class="emoji-label" data-en="Good" data-ar="جيد">Good</span>
+                        </button>
+                        <button class="emoji-btn btn btn-outline-primary" data-rating="excellent" title="Excellent">
+                            <span class="emoji">🤩</span>
+                            <span class="emoji-label" data-en="Excellent" data-ar="ممتاز">Excellent</span>
+                        </button>
+                    </div>
+                    <div id="feedbackMessage" class="mt-4" style="display: none;">
+                        <div class="alert alert-success">
+                            <strong data-en="Thank you!" data-ar="شكراً لك!">Thank you!</strong>
+                            <span data-en="Your feedback has been submitted." data-ar="تم إرسال تقييمك.">Your feedback has been submitted.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-en="Close" data-ar="إغلاق">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Language switching
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+
+            // Update HTML direction
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            // Update all translatable elements
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+        });
+
+        // Theme switching
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+            document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.querySelector('.theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        // Initialize on page load
+        setLanguage(currentLang);
+        setTheme(currentTheme);
+
+        // Feedback functionality
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+
+                fetch('/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rating: rating })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('feedbackMessage').style.display = 'block';
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active', 'selected'));
+                    this.classList.add('selected');
+
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+                        modal.hide();
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+        document.getElementById('feedbackModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('feedbackMessage').style.display = 'none';
+            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+        });
+    </script>
+</body>
+</html>
