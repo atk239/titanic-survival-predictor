@@ -10,7 +10,9 @@
 <body>
     <!-- Top Controls -->
     <div class="container mt-3">
-        <div class="d-flex justify-content-end gap-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="/dashboard" class="btn btn-outline-light" data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</a>
+            <div class="d-flex gap-2">
             <!-- Language Toggle -->
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-secondary btn-sm lang-btn active" data-lang="en">EN</button>
@@ -20,6 +22,7 @@
             <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggle">
                 <span class="theme-icon">🌙</span>
             </button>
+            </div>
         </div>
     </div>
 
@@ -31,6 +34,60 @@
                         <h3 class="mb-0 text-center" data-en="Prediction Result" data-ar="نتيجة التنبؤ">Prediction Result</h3>
                     </div>
                     <div class="card-body text-center">
+                        <!-- Animated Scene -->
+                        <div class="animation-scene mb-3">
+                            {% if survived %}
+                            <!-- SURVIVED: Person on a boat -->
+                            <div class="ocean survived-ocean">
+                                <div class="wave wave1"></div>
+                                <div class="wave wave2"></div>
+                                <div class="wave wave3"></div>
+                                <div class="boat">
+                                    <div class="boat-body"></div>
+                                    <div class="mast"></div>
+                                    <div class="sail"></div>
+                                    <div class="flag"></div>
+                                    <div class="person-on-boat">
+                                        <div class="p-head"></div>
+                                        <div class="p-body-part"></div>
+                                        <div class="p-arm left-arm wave-arm"></div>
+                                        <div class="p-arm right-arm"></div>
+                                        <div class="p-leg left-leg"></div>
+                                        <div class="p-leg right-leg"></div>
+                                    </div>
+                                </div>
+                                <div class="sun"></div>
+                                <div class="bird bird1"></div>
+                                <div class="bird bird2"></div>
+                            </div>
+                            {% else %}
+                            <!-- DID NOT SURVIVE: Person sinking -->
+                            <div class="ocean drowning-ocean">
+                                <div class="wave wave1 dark-wave"></div>
+                                <div class="wave wave2 dark-wave"></div>
+                                <div class="wave wave3 dark-wave"></div>
+                                <div class="sinking-person">
+                                    <div class="p-head"></div>
+                                    <div class="p-body-part"></div>
+                                    <div class="p-arm left-arm flail-left"></div>
+                                    <div class="p-arm right-arm flail-right"></div>
+                                    <div class="p-leg left-leg kick-left"></div>
+                                    <div class="p-leg right-leg kick-right"></div>
+                                </div>
+                                <div class="bubble b1"></div>
+                                <div class="bubble b2"></div>
+                                <div class="bubble b3"></div>
+                                <div class="bubble b4"></div>
+                                <div class="bubble b5"></div>
+                                <div class="splash splash1"></div>
+                                <div class="splash splash2"></div>
+                                <div class="storm-cloud cloud1"></div>
+                                <div class="storm-cloud cloud2"></div>
+                                <div class="rain"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+
                         <div class="mb-4">
                             {% if survived %}
                             <h2 class="text-success" data-en="Survived" data-ar="نجا">Survived</h2>
@@ -153,8 +210,43 @@
         </div>
     </div>
 
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" class="cookie-banner" style="display: none;">
+        <div class="cookie-content">
+            <div class="cookie-icon">🍪</div>
+            <div class="cookie-text">
+                <p class="mb-1 fw-bold" data-en="We use cookies" data-ar="نستخدم ملفات تعريف الارتباط">We use cookies</p>
+                <p class="mb-0 small" data-en="This website uses cookies to store your preferences (language, theme) and improve your experience." data-ar="يستخدم هذا الموقع ملفات تعريف الارتباط لحفظ تفضيلاتك (اللغة، المظهر) وتحسين تجربتك.">This website uses cookies to store your preferences (language, theme) and improve your experience.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button class="btn btn-success btn-sm" id="acceptCookies" data-en="Accept" data-ar="قبول">Accept</button>
+                <button class="btn btn-outline-secondary btn-sm" id="declineCookies" data-en="Decline" data-ar="رفض">Decline</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Cookie consent
+        function showCookieBanner() {
+            const consent = localStorage.getItem('cookieConsent');
+            if (!consent) {
+                document.getElementById('cookieBanner').style.display = 'block';
+            }
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'accepted');
+            document.getElementById('cookieBanner').style.display = 'none';
+        });
+
+        document.getElementById('declineCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'declined');
+            document.getElementById('cookieBanner').style.display = 'none';
+        });
+
+        showCookieBanner();
+
         // Language switching
         let currentLang = localStorage.getItem('lang') || 'en';
 
